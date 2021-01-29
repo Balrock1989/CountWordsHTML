@@ -10,19 +10,20 @@ import static org.hamcrest.Matchers.equalTo;
 
 
 public class RequestHelper extends HttpClient {
-//    private HttpClient httpClient = new HttpClient();
-//
-//    public void initClient() {
-//        httpClient.
-//    }
+    private final HttpClient HTTP_CLIENT = new HttpClient();
 
-    public static String get(String url) throws IOException {
+    public void initClient() throws IOException {
+        HTTP_CLIENT.initProperties();
+        HTTP_CLIENT.initClient();
+    }
+
+    public String get(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
-                .headers(headers)
+                .headers(HTTP_CLIENT.headers)
                 .get()
                 .build();
-        Response response = client.newCall(request).execute();
+        Response response = HTTP_CLIENT.client.newCall(request).execute();
         MatcherAssert.assertThat(response.code(), equalTo(200));
         return response.body().string();
     }

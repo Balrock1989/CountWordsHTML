@@ -7,21 +7,22 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TextHandler extends RequestHelper {
     private final String REG_SPLIT = "[\" \"|\",\"|\".\"|\"!\"|\"?\"|\"\"\"|\";\"|\":\"|\"\\[\"|\"\\]\"|\"(\"/\")\"|\"\n\"|\"\r\"|\"\t\"|\"\\s+\"]";
     private final String url;
-    public TextHandler(String url){
+
+    public TextHandler(String url) throws IOException {
+        initClient();
         this.url = url;
     }
 
+
     public void findUniqueWord() throws IOException {
-        initProperties();
         String allText = getAllText();
-        if (!allText.equals("")){
+        if (!allText.equals("")) {
             List<String> allWords = splitTextIntoWords(allText);
             HashMap<String, Integer> wordToCount = countWords(allWords);
             Map<String, Integer> result = prepareResult(wordToCount);
@@ -30,11 +31,12 @@ public class TextHandler extends RequestHelper {
             System.out.printf("На сайте %s не найден текст", url);
         }
     }
+
     private String getAllText() throws IOException {
         Document parse;
         try {
             parse = Jsoup.parse(get(this.url));
-        }catch (UnknownHostException e){
+        } catch (UnknownHostException e) {
             // TODO залогировать e.fillInStackTrace()
             throw new RuntimeException(e.fillInStackTrace());//TODO не завершать приложении при ошибке в url
             // TODO Добавить многопоточность

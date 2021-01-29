@@ -22,24 +22,26 @@ import java.util.Properties;
 /*** Конфигурация HTTP клиента*/
 public class HttpClient {
 
-    public MediaType mediaType = MediaType.Companion.get("application/json; charset=utf-8");;
-    public static Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
-    public static Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
-    public static Properties appProps;
-    public static OkHttpClient client;
+    public MediaType mediaType = MediaType.Companion.get("application/json; charset=utf-8");
+    public Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
+    public Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
+    public OkHttpClient client;
     private static boolean needProxy;
     private static boolean needLogger;
 
-    public static void initProperties() throws IOException {
+    public void initProperties() throws IOException {
         String appConfigPath = Paths.get(System.getProperty("user.dir"),"target", "classes", "config.properties").toString();
-        appProps = new Properties();
+        Properties appProps = new Properties();
         appProps.load(new FileInputStream(appConfigPath));
         needProxy = Boolean.parseBoolean(appProps.getProperty("config.proxy"));
         needLogger = Boolean.parseBoolean(appProps.getProperty("config.logger"));
-        initClient();
     }
 
-    private static OkHttpClient getUnsafeOkHttpClient() {
+    public void initClient() throws IOException {
+        client = needProxy ? getUnsafeOkHttpClient() : getOkHTTPClient();
+    }
+
+    private OkHttpClient getUnsafeOkHttpClient() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{(new X509TrustManager() {
                 public void checkClientTrusted(X509Certificate[] chain, String authType) {
@@ -67,7 +69,7 @@ public class HttpClient {
         }
     }
 
-    private static OkHttpClient getOkHTTPClient() {
+    private OkHttpClient getOkHTTPClient() {
         try {
             Builder builder = new Builder();
             if (needLogger) {
@@ -77,8 +79,5 @@ public class HttpClient {
         } catch (Exception e) {
             throw new RuntimeException((e));
         }
-    }
-    private static void initClient() {
-        client = needProxy ? getUnsafeOkHttpClient() : getOkHTTPClient();
     }
 }
