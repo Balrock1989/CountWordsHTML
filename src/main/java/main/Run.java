@@ -1,16 +1,15 @@
 package main;
 
-import api.RequestHelper;
+import handlers.TextHandler;
 
 import java.io.IOException;
 
 
 
-public class Run extends RequestHelper {
+public class Run {
 
     public static void main(String[] args) throws IOException {
-        initProperties();
-        String response = get("https://reqres.in/api/users/2");
-        System.out.println(response);
+        TextHandler textHandler = new TextHandler();
+        textHandler.findUniqueWord();
     }
 }

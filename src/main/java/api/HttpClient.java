@@ -30,9 +30,6 @@ public class HttpClient {
     private static boolean needProxy;
     private static boolean needLogger;
 
-    public HttpClient() {
-    }
-
     public static void initProperties() throws IOException {
         String appConfigPath = Paths.get(System.getProperty("user.dir"),"target", "classes", "config.properties").toString();
         appProps = new Properties();
