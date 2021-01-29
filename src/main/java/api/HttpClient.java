@@ -10,30 +10,36 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
 
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 /*** Конфигурация HTTP клиента*/
 public class HttpClient {
 
-    public final MediaType mediaType = MediaType.Companion.get("application/json; charset=utf-8");;
-    public final Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
-    public static Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8888)));
+    public MediaType mediaType = MediaType.Companion.get("application/json; charset=utf-8");;
+    public static Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
+    public static Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
     public static Properties appProps;
     public static OkHttpClient client;
+    private static boolean needProxy;
+    private static boolean needLogger;
 
-    public static void initClient() throws IOException {
-        String appConfigPath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "myProperties.properties";
+    public HttpClient() {
+    }
+
+    public static void initProperties() throws IOException {
+        String appConfigPath = Paths.get(System.getProperty("user.dir"),"target", "classes", "config.properties").toString();
         appProps = new Properties();
         appProps.load(new FileInputStream(appConfigPath));
-        client = Boolean.parseBoolean(appProps.getProperty("config.proxy")) ? getUnsafeOkHttpClient() : getOkHTTPClient();
-//        client = Boolean.parseBoolean(System.getProperty("config.proxy")) ? getUnsafeOkHttpClient() : getOkHTTPClient();
+        needProxy = Boolean.parseBoolean(appProps.getProperty("config.proxy"));
+        needLogger = Boolean.parseBoolean(appProps.getProperty("config.logger"));
+        initClient();
     }
 
     private static OkHttpClient getUnsafeOkHttpClient() {
@@ -54,8 +60,7 @@ public class HttpClient {
             sslContext.init(null, trustAllCerts, null);
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             Builder builder = new Builder();
-            builder.addInterceptor(new LoggingInterceptor());
-            if (Boolean.parseBoolean(appProps.getProperty("config.logger"))) {
+            if (needLogger) {
                 builder.addNetworkInterceptor((new LoggingInterceptor()));
             }
             builder.proxy(proxy);
@@ -68,12 +73,15 @@ public class HttpClient {
     private static OkHttpClient getOkHTTPClient() {
         try {
             Builder builder = new Builder();
-            if (Boolean.parseBoolean(appProps.getProperty("config.logger"))) {
+            if (needLogger) {
                 builder.addNetworkInterceptor((new LoggingInterceptor()));
             }
             return builder.build();
         } catch (Exception e) {
             throw new RuntimeException((e));
         }
+    }
+    private static void initClient() {
+        client = needProxy ? getUnsafeOkHttpClient() : getOkHTTPClient();
     }
 }

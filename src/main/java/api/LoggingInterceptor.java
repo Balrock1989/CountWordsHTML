@@ -10,7 +10,6 @@ import okhttp3.*;
 
 import okhttp3.internal.concurrent.TaskRunner;
 import okio.Buffer;
-import okio.BufferedSink;
 
 
 public final class LoggingInterceptor implements Interceptor {
@@ -62,7 +61,7 @@ public final class LoggingInterceptor implements Interceptor {
         }
     }
 
-    private final String stringifyResponseBody(String responseBody) {
+    private String stringifyResponseBody(String responseBody) {
         try {
             return JsonWriter.formatJson(responseBody);
         } catch (JsonIoException var4) {
@@ -93,7 +92,7 @@ public final class LoggingInterceptor implements Interceptor {
                 return JsonWriter.formatJson(buffer.readUtf8());
             } catch (JsonIoException | IOException var6) {
                 logger.severe("The request body contains invalid JSON");
-                copy.body().writeTo((BufferedSink) buffer);
+                copy.body().writeTo(buffer);
                 return buffer.readUtf8();
             }
         }

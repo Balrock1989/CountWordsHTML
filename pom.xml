@@ -21,7 +21,7 @@
         <profile>
             <id>logger</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
                 <config.logger>true</config.logger>
@@ -66,7 +66,7 @@
 <!--            <groupId>org.hamcrest</groupId>-->
 <!--            <artifactId>hamcrest-all</artifactId>-->
 <!--            <version>1.3</version>-->
-<!--            <scope>test</scope>-->
+<!--            <scope>main</scope>-->
 <!--        </dependency>-->
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -104,28 +104,28 @@
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/java</testSourceDirectory>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <base.url>${base.url}</base.url>
-                        <config.logger>${config.logger}</config.logger>
-                        <config.proxy>${config.proxy}</config.proxy>
-                    </systemPropertyVariables>
-                    <argLine>
-                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
-                    </argLine>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjweaver</artifactId>
-                        <version>${aspectj.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-surefire-plugin</artifactId>-->
+<!--                <version>3.0.0-M5</version>-->
+<!--                <configuration>-->
+<!--                    <systemPropertyVariables>-->
+<!--                        <base.url>${base.url}</base.url>-->
+<!--                        <config.logger>${config.logger}</config.logger>-->
+<!--                        <config.proxy>${config.proxy}</config.proxy>-->
+<!--                    </systemPropertyVariables>-->
+<!--                    <argLine>-->
+<!--                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"-->
+<!--                    </argLine>-->
+<!--                </configuration>-->
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>org.aspectj</groupId>-->
+<!--                        <artifactId>aspectjweaver</artifactId>-->
+<!--                        <version>${aspectj.version}</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+<!--            </plugin>-->
         </plugins>
         <resources>
             <resource>
