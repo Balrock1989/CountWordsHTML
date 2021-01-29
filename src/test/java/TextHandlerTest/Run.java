@@ -13,18 +13,18 @@ public class Run extends RequestHelper {
     @Test(description = "Позитивный кейс")
     public void test1() throws IOException {
         TextHandler textHandler = new TextHandler("simbirsoft.com/");
-        textHandler.findUniqueWord();
+        textHandler.start();
     }
 
     @Test(description = "URL не указан")
     public void test2() throws IOException {
         TextHandler textHandler = new TextHandler("");
-        textHandler.findUniqueWord();
+        textHandler.start();
     }
 
     @Test(description = "URL возвращает пустую строку")
     public void test3() throws IOException {
         TextHandler textHandler = new TextHandler("https://www.simbirsoft.com/");
-        textHandler.findUniqueWord();
+        textHandler.start();
     }
 }

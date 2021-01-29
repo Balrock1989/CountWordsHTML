@@ -6,43 +6,40 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.logging.*;
 
-public class TextHandler extends RequestHelper {
-    private final String REG_SPLIT = "[\" \"|\",\"|\".\"|\"!\"|\"?\"|\"\"\"|\";\"|\":\"|\"\\[\"|\"\\]\"|\"(\"/\")\"|\"\n\"|\"\r\"|\"\t\"|\"\\s+\"]";
-    private final String url;
+public class TextHandler extends Thread{
+    private Logger log = Logger.getLogger(TextHandler.class.getName());
+    private final RequestHelper REQUEST_HELPER = new RequestHelper();
+    private final String REG_SPLIT = "[\" \"|\",\"|\".\"|\"!\"|\"?\"|\"\"\"|\";\"|\":\"|\"\\[\"|\"\\]\"|\"(\"/\")\"|\"\n\"|\"\r\"|\"\t\"|\"\\s+\"|\"-\"]";
+    private final String URL;
 
-    public TextHandler(String url) throws IOException {
-        initClient();
-        this.url = url;
+    public TextHandler(String url)  throws IOException {
+
+        REQUEST_HELPER.initClient();
+        this.URL = url;
     }
 
+    public void run()  {
+        String allText = "";
+        try {
+            Document document = Jsoup.parse(REQUEST_HELPER.get(this.URL));
+            allText = document.text();
+        } catch (IOException e) {
+            log.severe(e.toString());
 
-    public void findUniqueWord() throws IOException {
-        String allText = getAllText();
+        }
         if (!allText.equals("")) {
             List<String> allWords = splitTextIntoWords(allText);
             HashMap<String, Integer> wordToCount = countWords(allWords);
             Map<String, Integer> result = prepareResult(wordToCount);
-            result.forEach((k, v) -> System.out.println(k + " :" + v));
+            System.out.println("Всего слов: " + result.size());
+            result.forEach((k, v) -> System.out.println(k + " : " + v));
         } else {
-            System.out.printf("На сайте %s не найден текст", url);
+            log.info(String.format("На сайте %s не найден текст", URL));
         }
-    }
-
-    private String getAllText() throws IOException {
-        Document parse;
-        try {
-            parse = Jsoup.parse(get(this.url));
-        } catch (UnknownHostException e) {
-            // TODO залогировать e.fillInStackTrace()
-            throw new RuntimeException(e.fillInStackTrace());//TODO не завершать приложении при ошибке в url
-            // TODO Добавить многопоточность
-
-        }
-        return parse.text();
     }
 
     @NotNull
@@ -68,6 +65,7 @@ public class TextHandler extends RequestHelper {
     private Map<String, Integer> prepareResult(HashMap<String, Integer> wordToCount) {
         Map<String, Integer> result = wordToCount.entrySet()
                 .stream()
+                .sorted(Map.Entry.comparingByKey())
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
