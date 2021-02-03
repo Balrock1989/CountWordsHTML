@@ -10,40 +10,38 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.logging.*;
 
-public class TextHandler extends Thread{
-    private Logger log = Logger.getLogger(TextHandler.class.getName());
+public class TextHandler extends Thread {
+    private final Logger LOG = Logger.getLogger(TextHandler.class.getName());
     private final RequestHelper REQUEST_HELPER = new RequestHelper();
-    private final String REG_SPLIT = "[\" \"|\",\"|\".\"|\"!\"|\"?\"|\"\"\"|\";\"|\":\"|\"\\[\"|\"\\]\"|\"(\"/\")\"|\"\n\"|\"\r\"|\"\t\"|\"\\s+\"|\"-\"]";
     private final String URL;
 
-    public TextHandler(String url)  throws IOException {
-
+    public TextHandler(String url) throws IOException {
         REQUEST_HELPER.initClient();
         this.URL = url;
     }
 
-    public void run()  {
-        String allText = "";
+    public void run() {
+        List<String> allWords = new ArrayList<>();
         try {
             Document document = Jsoup.parse(REQUEST_HELPER.get(this.URL));
-            allText = document.text();
+            allWords = splitTextIntoWords(document.text());
         } catch (IOException e) {
-            log.severe(e.toString());
-
+            LOG.severe(e.toString());
         }
-        if (!allText.equals("")) {
-            List<String> allWords = splitTextIntoWords(allText);
+        if (allWords.size() > 0) {
             HashMap<String, Integer> wordToCount = countWords(allWords);
             Map<String, Integer> result = prepareResult(wordToCount);
-            System.out.println("Всего слов: " + result.size());
+            System.out.println(this.URL + "\nВсего слов: " + result.size());
             result.forEach((k, v) -> System.out.println(k + " : " + v));
+            System.out.println(new String(new char[50]).replace("\0", "-"));
         } else {
-            log.info(String.format("На сайте %s не найден текст", URL));
+            LOG.info(String.format("На сайте %s не найден текст", URL));
         }
     }
 
     @NotNull
     private List<String> splitTextIntoWords(String allText) {
+        String REG_SPLIT = "[ \t\n\r,/.!?\\\"\\':;\\(\\)\\[\\]@#\\$%\\^&\\*\\-\\+\\=\\|\\{\\}\\«\\»]";
         return Arrays.stream(allText.split(REG_SPLIT))
                 .filter(s -> !s.equals(""))
                 .map(String::toLowerCase)
@@ -63,7 +61,7 @@ public class TextHandler extends Thread{
 
     @NotNull
     private Map<String, Integer> prepareResult(HashMap<String, Integer> wordToCount) {
-        Map<String, Integer> result = wordToCount.entrySet()
+        return wordToCount.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
@@ -71,6 +69,5 @@ public class TextHandler extends Thread{
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        return result;
     }
 }
