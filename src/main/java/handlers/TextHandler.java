@@ -3,17 +3,17 @@ package handlers;
 import api.RequestHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import util.Log;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.logging.*;
 
 public class TextHandler extends Thread {
-    private final Logger LOG = Logger.getLogger(TextHandler.class.getName());
     private final RequestHelper REQUEST_HELPER = new RequestHelper();
     private final String URL;
+    private DbHandler dbHandler;
 
     public TextHandler(String url) throws IOException {
         REQUEST_HELPER.initClient();
@@ -21,12 +21,23 @@ public class TextHandler extends Thread {
     }
 
     public void run() {
+        try {
+            dbHandler = DbHandler.getInstance();
+        } catch (SQLException e) {
+            Log.severe(this, e.toString());
+        }
+        //TODO сделать проверку, если слово уже есть в базе, то вовзаращать его count, и прибавлять
+        dbHandler.addProduct("test");
+        dbHandler.addProduct("test");
+        dbHandler.addProduct("test2");
+//        dbHandler.commit();
+
+
         List<String> allWords = new ArrayList<>();
         try {
-            Document document = Jsoup.parse(REQUEST_HELPER.get(this.URL));
-            allWords = splitTextIntoWords(document.text());
+            allWords = splitTextIntoWords(Jsoup.parse(REQUEST_HELPER.get(this.URL)).text());
         } catch (IOException e) {
-            LOG.severe(e.toString());
+            Log.severe(this, e.toString());
         }
         if (allWords.size() > 0) {
             HashMap<String, Integer> wordToCount = countWords(allWords);
@@ -35,14 +46,14 @@ public class TextHandler extends Thread {
             result.forEach((k, v) -> System.out.println(k + " : " + v));
             System.out.println(new String(new char[50]).replace("\0", "-"));
         } else {
-            LOG.info(String.format("На сайте %s не найден текст", URL));
+            Log.info(this, String.format("На сайте %s не найден текст", URL));
         }
     }
 
     @NotNull
     private List<String> splitTextIntoWords(String allText) {
-        String REG_SPLIT = "[ \t\n\r,/.!?\\\"\\':;\\(\\)\\[\\]@#\\$%\\^&\\*\\-\\+\\=\\|\\{\\}\\«\\»]";
-        return Arrays.stream(allText.split(REG_SPLIT))
+        String regSplit = "[ \t\n\r,/.!?\\\"\\':;\\(\\)\\[\\]@#\\$%\\^&\\*\\-\\+\\=\\|\\{\\}\\«\\»\\<\\>]";
+        return Arrays.stream(allText.split(regSplit))
                 .filter(s -> !s.equals(""))
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());

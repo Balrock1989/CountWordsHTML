@@ -19,7 +19,7 @@
     </properties>
     <profiles>
         <profile>
-            <id>logger</id>
+            <id>util</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -104,11 +104,11 @@
             <artifactId>maven-jetty-plugin</artifactId>
             <version>1.1</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.github.ansell.jdefaultdict</groupId>-->
-<!--            <artifactId>jdefaultdict</artifactId>-->
-<!--            <version>0.1</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.34.0</version>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -121,7 +121,7 @@
 <!--                <configuration>-->
 <!--                    <systemPropertyVariables>-->
 <!--                        <base.url>${base.url}</base.url>-->
-<!--                        <config.logger>${config.logger}</config.logger>-->
+<!--                        <config.util>${config.util}</config.util>-->
 <!--                        <config.proxy>${config.proxy}</config.proxy>-->
 <!--                    </systemPropertyVariables>-->
 <!--                    <argLine>-->

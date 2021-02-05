@@ -1,7 +1,6 @@
 package api;
 
 import okhttp3.Headers;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 
@@ -22,7 +21,6 @@ import java.util.Properties;
 /*** Конфигурация HTTP клиента*/
 public class HttpClient {
 
-    public MediaType mediaType = MediaType.Companion.get("application/json; charset=utf-8");
     public Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
     public Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
     public OkHttpClient client;
@@ -44,13 +42,8 @@ public class HttpClient {
     private OkHttpClient getUnsafeOkHttpClient() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{(new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] chain, String authType) {
-                }
-
-                public void checkServerTrusted(X509Certificate[] chain, String authType) {
-
-                }
-
+                public void checkClientTrusted(X509Certificate[] chain, String authType) { }
+                public void checkServerTrusted(X509Certificate[] chain, String authType) { }
                 public X509Certificate[] getAcceptedIssuers() {
                     return new X509Certificate[0];
                 }
