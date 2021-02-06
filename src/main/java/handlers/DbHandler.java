@@ -5,22 +5,24 @@ import util.Log;
 
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.*;
 
 
 public class DbHandler {
     private static final String CON_STR = "jdbc:sqlite:"
             + Paths.get(System.getProperty("user.dir"), "src", "main","java","db", "word_statistics.db").toString();
     private static DbHandler instance = null;
-    public static Statement statmt;
     private static Connection connection;
+    private int count = 0;
 
-    public static synchronized DbHandler getInstance() throws SQLException {
+    public static synchronized DbHandler getInstance(){
         try {
             if (instance == null)
                 instance = new DbHandler();
         }
         catch (SQLException e){
             e.printStackTrace();
+            Log.severe(DbHandler.class, e.toString());
         }
         return instance;
     }
@@ -28,77 +30,81 @@ public class DbHandler {
     private DbHandler() throws SQLException {
         DriverManager.registerDriver(new JDBC());
         connection = DriverManager.getConnection(CON_STR);
-//        connection.setAutoCommit(false);
-        statmt = connection.createStatement();
-//        statmt.execute("PRAGMA journal_mode = WAL;");
-        statmt.execute("PRAGMA encoding = \"UTF-8\";");
+        connection.setAutoCommit(false);
         CreateTables();
-
-
+//        Statement st = connection.createStatement();
+//        st.execute("PRAGMA journal_mode = \"WAL\";");
+//        st.execute("PRAGMA encoding = \"UTF-8\";");
+//        connection.commit();
     }
 
     public void CreateTables() throws SQLException {
-//        statmt.execute("CREATE TABLE if not exists 'statistics' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'word' text, 'count' INT);");
-        statmt.execute("CREATE TABLE if not exists 'all_statistics' ('word' text primary key, count int default 1)");
-        statmt.execute("CREATE TABLE if not exists 'last_statistics' ('word' text primary key, count int default 1)");
+        Statement st = connection.createStatement();
+        st.executeUpdate("CREATE TABLE if not exists 'all_statistics' ('word' text primary key, count int default 1)");
+        st.executeUpdate("CREATE TABLE if not exists 'last_statistics' ('word' text primary key, count int default 1)");
+        connection.commit();
+    }
+
+    public Statement createNewStatement() {
+        Statement st = null;
+        try {
+            st = connection.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Log.severe(this, e.toString());
+        }
+        return st;
     }
 
     public void commit() {
-        try {
+        try{
             connection.commit();
-        } catch (SQLException e){
+        }catch (SQLException e) {
+            e.printStackTrace();
             Log.severe(this, e.toString());
         }
     }
 
-    public void getAllProducts() {
-
-//        // Statement используется для того, чтобы выполнить sql-запрос
-//        try (Statement statement = this.connection.createStatement()) {
-//            // В данный список будем загружать наши продукты, полученные из БД
-//            List<Product> products = new ArrayList<Product>();
-//            // В resultSet будет храниться результат нашего запроса,
-//            // который выполняется командой statement.executeQuery()
-//            ResultSet resultSet = statement.executeQuery("SELECT id, good, price, category_name FROM products");
-//            // Проходимся по нашему resultSet и заносим данные в products
-//            while (resultSet.next()) {
-//                products.add(new Product(resultSet.getInt("id"),
-//                        resultSet.getString("good"),
-//                        resultSet.getDouble("price"),
-//                        resultSet.getString("category_name")));
-//            }
-//            // Возвращаем наш список
-//            return products;
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            // Если произошла ошибка - возвращаем пустую коллекцию
-//            return Collections.emptyList();
-//        }
+    public Map<String, Integer> getAllWords() {
+        LinkedHashMap<String, Integer> wordToCount = new LinkedHashMap<String, Integer>();
+        try (Statement st = connection.createStatement()) {
+            ResultSet resultSet = st.executeQuery("SELECT word, count FROM last_statistics ORDER BY count DESC, word ASC");
+            while (resultSet.next()) {
+                wordToCount.put(resultSet.getString("word"), resultSet.getInt("count"));
+            }
+            st.close();
+            return wordToCount;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Log.severe(this, e.toString());
+            return Collections.emptyMap();
+        }
     }
 
     // Добавление продукта в БД
-    public void addProduct(String word) {
-//        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO 'statistics' ('word', 'count') VALUES(?, ?)")){
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO 'last_statistics' ('word') VALUES(?) " +
-                "on conflict (word) do update set count = count + 1;")){
-            statement.setObject(1, word);
-//            statement.setObject(2, count);
-            statement.execute();
-        } catch (SQLException e) {
-            Log.severe(this, e.toString());
-            }
-    }
-
-    // Удаление продукта по id
-    public void deleteProduct(int id) {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "DELETE FROM Products WHERE id = ?")) {
-            statement.setObject(1, id);
-            // Выполняем запрос
-            statement.execute();
+    public void addProduct(Statement st, String word) {
+        try {
+            count = count + st.executeUpdate("INSERT INTO 'last_statistics' ('word') VALUES('" + word + "') " +
+                    "on conflict (word) do update set count = count + 1;");
+            st.executeUpdate("INSERT INTO 'all_statistics' ('word') VALUES('" + word + "') " +
+                    "on conflict (word) do update set count = count + 1;");
         } catch (SQLException e) {
             e.printStackTrace();
+            Log.severe(this, e.toString());
         }
+    }
+
+    public void clearLastStatistics() {
+        try (Statement st = connection.createStatement()){
+            st.execute("DROP TABLE IF EXISTS last_statistics");
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Log.severe(this, e.toString());
+        }
+    }
+
+    public boolean notEmpty() {
+        return count > 0;
     }
 }

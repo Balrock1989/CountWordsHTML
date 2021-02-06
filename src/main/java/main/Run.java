@@ -10,11 +10,9 @@ public class Run {
 
     public static void main(String[] args) throws IOException {
         Log.configLogger();
-        TextHandler invalidUrl = new TextHandler("https://www.simbirsoft.commmm/");
-        TextHandler simbirsoft = new TextHandler("https://www.simbirsoft.com/");
-        TextHandler codengineering = new TextHandler("https://codengineering.ru/q/how-to-monitor-java-memory-usage-2537");
-        invalidUrl.start();
-        simbirsoft.start();
-//        codengineering.start();
+//        new TextHandler("https://www.simbirsoft.commmm/").start();
+        new TextHandler("https://www.simbirsoft.com/").start();
+//        new TextHandler("https://codengineering.ru/").start();
+
     }
 }
