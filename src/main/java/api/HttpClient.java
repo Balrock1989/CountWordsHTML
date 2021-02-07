@@ -21,13 +21,13 @@ import java.util.Properties;
 /*** Конфигурация HTTP клиента*/
 public class HttpClient {
 
-    public Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
-    public Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
-    public OkHttpClient client;
+    public static Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
+    public static Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
+    public static OkHttpClient client;
     private static boolean needProxy;
     private static boolean needLogger;
 
-    public void initProperties() throws IOException {
+    public static void initProperties() throws IOException {
         String appConfigPath = Paths.get(System.getProperty("user.dir"),"target", "classes", "config.properties").toString();
         Properties appProps = new Properties();
         appProps.load(new FileInputStream(appConfigPath));
@@ -35,11 +35,11 @@ public class HttpClient {
         needLogger = Boolean.parseBoolean(appProps.getProperty("config.logger"));
     }
 
-    public void initClient() throws IOException {
+    public static void initClient() throws IOException {
         client = needProxy ? getUnsafeOkHttpClient() : getOkHTTPClient();
     }
 
-    private OkHttpClient getUnsafeOkHttpClient() {
+    private static OkHttpClient getUnsafeOkHttpClient() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{(new X509TrustManager() {
                 public void checkClientTrusted(X509Certificate[] chain, String authType) { }
@@ -62,7 +62,7 @@ public class HttpClient {
         }
     }
 
-    private OkHttpClient getOkHTTPClient() {
+    private static OkHttpClient getOkHTTPClient() {
         try {
             Builder builder = new Builder();
             if (needLogger) {

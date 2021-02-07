@@ -12,37 +12,36 @@ import java.util.Map;
 
 /*** Класс для подсчета кол-ва уникальных слов на заданном URL*/
 public class TextHandler extends Thread implements RandomGenerator {
-    private final RequestHelper requestHelper = new RequestHelper();
+    private final DbHandler db = DbHandler.getInstance();
     private final String URL;
     private final String tempTableName;
-    private final DbHandler db = DbHandler.getInstance();
     private final Statement st;
 
     public TextHandler(String url) throws IOException {
-        requestHelper.initClient();
+        RequestHelper.initClient();
         this.URL = url;
-        this.tempTableName = randomString.nextString();
-        st = db.createNewStatement(tempTableName);
+        this.tempTableName = randomString.nextString().toLowerCase();
+        this.st = db.createNewStatement(tempTableName);
     }
 
     public void run() {
         try {
-            splitTextIntoWords(Jsoup.parse(requestHelper.get(this.URL)).text());
+            splitTextIntoWords(Jsoup.parse(RequestHelper.get(this.URL)).text());
         } catch (IOException e) {
             e.printStackTrace();
             Log.severe(this, e.toString());
         }
-        if (db.notEmpty(tempTableName)) {
-            Map<String, Integer> result = db.getAllWords(tempTableName);
+        if (db.notEmpty(st, tempTableName)) {
+            Map<String, Integer> result = db.getAllWords(st, tempTableName);
             printResult(result);
         } else {
             Log.info(this, String.format("На сайте %s не найден текст", URL));
         }
-        db.clearTempTable(tempTableName);
+        db.clearTempTable(st, tempTableName);
     }
 
     private void printResult(Map<String, Integer> result) {
-        Log.info(this, this.URL + "\nВсего найдено уникальных слов: " + result.size());
+        Log.info(this, URL + "\nВсего найдено уникальных слов: " + result.size());
         result.forEach((k, v) -> System.out.println(k + " : " + v));
         System.out.println(new String(new char[50]).replace("\0", "-"));
     }
@@ -53,6 +52,5 @@ public class TextHandler extends Thread implements RandomGenerator {
                 .filter(s -> !s.equals(""))
                 .map(String::toLowerCase)
                 .forEach(s -> db.addProduct(st, tempTableName, s));
-        db.close(st);
     }
 }

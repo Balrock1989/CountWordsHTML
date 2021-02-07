@@ -34,6 +34,7 @@ public class DbHandler {
     private void configDataBase() throws SQLException {
         Statement st = connection.createStatement();
         st.execute("PRAGMA busy_timeout = 5000;");
+        st.execute("PRAGMA journal_mode = \"WAL\";");
         st.executeUpdate("CREATE TABLE if not exists 'all_statistics' ('word' text primary key, count int default 1)");
         connection.setAutoCommit(false);
         connection.commit();
@@ -52,17 +53,15 @@ public class DbHandler {
 
     private void CreateTempTable(Statement st, String tempTableName) throws SQLException {
         st.executeUpdate("CREATE TEMP TABLE if not exists '" + tempTableName + "' ('word' text primary key, count int default 1)");
-        close(st);
     }
 
-    public Map<String, Integer> getAllWords(String tempTableName) {
+    public Map<String, Integer> getAllWords(Statement st, String tempTableName) {
         LinkedHashMap<String, Integer> wordToCount = new LinkedHashMap<String, Integer>();
-        try (Statement st = connection.createStatement()) {
+        try {
             ResultSet resultSet = st.executeQuery("SELECT word, count FROM '" + tempTableName + "' ORDER BY count DESC, word ASC");
             while (resultSet.next()) {
                 wordToCount.put(resultSet.getString("word"), resultSet.getInt("count"));
             }
-            close(st);
             return wordToCount;
         } catch (SQLException e) {
             errorHandling(e);
@@ -72,6 +71,7 @@ public class DbHandler {
 
     public void printAllStatistics(int limit) {
         try (Statement st = connection.createStatement()) {
+            connection.commit();
             ResultSet resultSet = st.executeQuery("SELECT word, count FROM 'all_statistics' ORDER BY count DESC, word ASC LIMIT " + limit);
             System.out.println(limit + " самых часто встречающихся слов из общей статистики:");
             while (resultSet.next()) {
@@ -94,24 +94,22 @@ public class DbHandler {
         }
     }
 
-    public void clearTempTable(String tempTableName) {
-        try (Statement st = connection.createStatement()) {
-            st.execute("DROP TABLE IF EXISTS " + tempTableName);
+    public void clearTempTable(Statement st, String tempTableName) {
+        try {
+            st.execute("DROP TABLE IF EXISTS '" + tempTableName + "'");
             close(st);
-            connection.commit();
         } catch (SQLException e) {
             errorHandling(e);
         }
     }
 
-    public boolean notEmpty(String tempTableName) {
+    public boolean notEmpty(Statement st, String tempTableName) {
         int count = 0;
-        try (Statement st = connection.createStatement()) {
+        try {
             ResultSet resultSet = st.executeQuery("SELECT count(word) as count FROM '" + tempTableName + "'");
             while (resultSet.next()) {
                 count = resultSet.getInt("count");
             }
-            close(st);
             return count != 0;
         } catch (SQLException e) {
             errorHandling(e);
@@ -119,16 +117,16 @@ public class DbHandler {
         }
     }
 
-    private void errorHandling(SQLException e) {
-        e.printStackTrace();
-        Log.severe(this, e.toString());
-    }
-
-    public void close(Statement st) {
+    private void close(Statement st) {
         try {
             st.close();
         } catch (SQLException e) {
             errorHandling(e);
         }
+    }
+
+    private void errorHandling(SQLException e) {
+        e.printStackTrace();
+        Log.severe(this, e.toString());
     }
 }
