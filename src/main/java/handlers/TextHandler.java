@@ -7,18 +7,22 @@ import util.RandomGenerator;
 
 import java.io.IOException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 
+/*** Класс для подсчета кол-ва уникальных слов на заданном URL*/
 public class TextHandler extends Thread implements RandomGenerator {
     private final RequestHelper requestHelper = new RequestHelper();
     private final String URL;
     private final String tempTableName;
     private final DbHandler db = DbHandler.getInstance();
+    private final Statement st;
 
     public TextHandler(String url) throws IOException {
         requestHelper.initClient();
         this.URL = url;
         this.tempTableName = randomString.nextString();
+        st = db.createNewStatement(tempTableName);
     }
 
     public void run() {
@@ -28,23 +32,22 @@ public class TextHandler extends Thread implements RandomGenerator {
             e.printStackTrace();
             Log.severe(this, e.toString());
         }
-        if (db.notEmpty()) {
+        if (db.notEmpty(tempTableName)) {
             Map<String, Integer> result = db.getAllWords(tempTableName);
             printResult(result);
         } else {
             Log.info(this, String.format("На сайте %s не найден текст", URL));
         }
-        db.clearLastStatistics(tempTableName);
+        db.clearTempTable(tempTableName);
     }
 
     private void printResult(Map<String, Integer> result) {
-        System.out.println(this.URL + "\nВсего слов: " + result.size());
+        Log.info(this, this.URL + "\nВсего найдено уникальных слов: " + result.size());
         result.forEach((k, v) -> System.out.println(k + " : " + v));
         System.out.println(new String(new char[50]).replace("\0", "-"));
     }
 
     private void splitTextIntoWords(String allText) {
-        Statement st = db.createNewStatement(tempTableName);
         String regSplit = "[ \t\n\r,/.!?\\\"\\“\\':;\\(\\)\\[\\]@#\\$%\\^&\\*\\-\\+\\=\\|\\{\\}\\«\\»\\<\\>©×–]";
         Arrays.stream(allText.split(regSplit))
                 .filter(s -> !s.equals(""))

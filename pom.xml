@@ -19,7 +19,7 @@
     </properties>
     <profiles>
         <profile>
-            <id>util</id>
+            <id>logger</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

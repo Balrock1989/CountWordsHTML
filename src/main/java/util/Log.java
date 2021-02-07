@@ -3,6 +3,7 @@ package util;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
+/*** Класс для работы с логированием*/
 public class Log {
     public static Logger log;
     public static void configLogger(){

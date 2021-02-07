@@ -13,15 +13,14 @@ public class Run {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Log.configLogger();
-//        new TextHandler("https://www.simbirsoft.commmm/").start();
         List<TextHandler> thread = new ArrayList<>();
         thread.add(new TextHandler("https://www.simbirsoft.com/"));
         thread.add(new TextHandler("https://codengineering.ru/"));
+        thread.add(new TextHandler("https://www.simbirsoft.commmm/"));
         for (TextHandler textHandler : thread) {
             textHandler.start();
             textHandler.join();
         }
-        DbHandler.getInstance().commit();
-//        DbHandler.getInstance().printAllStatistics();
+        DbHandler.getInstance().printAllStatistics(10);
     }
 }

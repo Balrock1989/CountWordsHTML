@@ -11,7 +11,7 @@ import okhttp3.*;
 import okhttp3.internal.concurrent.TaskRunner;
 import okio.Buffer;
 
-
+/** Конфигурация перехватчика запросов*/
 public final class LoggingInterceptor implements Interceptor {
 
     @Override
