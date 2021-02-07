@@ -9,7 +9,6 @@ import java.io.IOException;
 public class RequestHelper extends HttpClient {
 
     public static void initClient() throws IOException {
-        HttpClient.initProperties();
         HttpClient.initClient();
     }
 

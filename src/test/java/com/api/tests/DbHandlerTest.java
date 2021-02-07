@@ -1,4 +1,4 @@
-package textHandlerTests;
+package com.api.tests;
 
 import api.RequestHelper;
 import handlers.TextHandler;
@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 
-public class TextHandlerTest extends RequestHelper {
+public class DbHandlerTest extends RequestHelper {
 
 
     @Test(description = "Позитивный кейс")

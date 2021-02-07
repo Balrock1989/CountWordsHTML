@@ -10,13 +10,14 @@ import okhttp3.*;
 
 import okhttp3.internal.concurrent.TaskRunner;
 import okio.Buffer;
+import util.Log;
 
 /** Конфигурация перехватчика запросов*/
 public final class LoggingInterceptor implements Interceptor {
-
+    private Logger logger;
     @Override
     public Response intercept(Chain chain) throws IOException {
-        Logger logger = TaskRunner.Companion.getLogger();
+        logger = TaskRunner.Companion.getLogger();
 
         Request request = chain.request();
         long t1 = System.nanoTime();
@@ -65,7 +66,7 @@ public final class LoggingInterceptor implements Interceptor {
         try {
             return JsonWriter.formatJson(responseBody);
         } catch (JsonIoException var4) {
-            TaskRunner.Companion.getLogger().severe("The response body contains invalid JSON");
+            logger.severe("The response body contains invalid JSON");
             return responseBody;
         }
     }

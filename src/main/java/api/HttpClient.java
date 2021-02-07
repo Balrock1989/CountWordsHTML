@@ -1,6 +1,7 @@
 package api;
 
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 
@@ -21,6 +22,7 @@ import java.util.Properties;
 /*** Конфигурация HTTP клиента*/
 public class HttpClient {
 
+    public static MediaType mediaType = MediaType.Companion.get("application/json; charset=utf-8");
     public static Headers headers = (new okhttp3.Headers.Builder()).add("Accept-Encoding", "identity").build();
     public static Proxy proxy = new Proxy(Type.HTTP, (new InetSocketAddress("127.0.0.1", 8877)));
     public static OkHttpClient client;
@@ -36,6 +38,7 @@ public class HttpClient {
     }
 
     public static void initClient() throws IOException {
+        initProperties();
         client = needProxy ? getUnsafeOkHttpClient() : getOkHTTPClient();
     }
 
