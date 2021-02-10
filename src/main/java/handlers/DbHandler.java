@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
 
+import static java.util.stream.Collectors.*;
+
 /*** Класс для работы с базой данных*/
 public class DbHandler {
     private static final String CON_STR = "jdbc:sqlite:"
@@ -34,13 +36,13 @@ public class DbHandler {
     private void configDataBase() throws SQLException {
         Statement st = connection.createStatement();
         st.execute("PRAGMA busy_timeout = 5000;");
-        st.execute("PRAGMA journal_mode = \"WAL\";");
+//        st.execute("PRAGMA journal_mode = \"WAL\";");
         st.executeUpdate("CREATE TABLE if not exists 'all_statistics' ('word' text primary key, count int default 1)");
         connection.setAutoCommit(false);
         connection.commit();
     }
 
-    public Statement createNewStatement(String tempTableName) {
+    public Statement createNewStatementWithTable(String tempTableName) {
         Statement st = null;
         try {
             st = connection.createStatement();
@@ -55,17 +57,34 @@ public class DbHandler {
         st.executeUpdate("CREATE TEMP TABLE if not exists '" + tempTableName + "' ('word' text primary key, count int default 1)");
     }
 
-    public Map<String, Integer> getAllWords(Statement st, String tempTableName) {
+    public Map<String, Integer> getAllWords(String tempTableName) {
         LinkedHashMap<String, Integer> wordToCount = new LinkedHashMap<String, Integer>();
-        try {
+        try (Statement st = connection.createStatement()){
             ResultSet resultSet = st.executeQuery("SELECT word, count FROM '" + tempTableName + "' ORDER BY count DESC, word ASC");
             while (resultSet.next()) {
                 wordToCount.put(resultSet.getString("word"), resultSet.getInt("count"));
             }
+            st.close();
             return wordToCount;
         } catch (SQLException e) {
             errorHandling(e);
             return Collections.emptyMap();
+        }
+    }
+
+    public int getCountForWords(String... words) {
+        String request = Arrays.stream(words).map(s -> "'" + s + "'").collect(joining(","));
+        int count = 0;
+        try (Statement st = connection.createStatement()){
+            ResultSet resultSet = st.executeQuery("SELECT word, count FROM 'all_statistics' WHERE word IN ("+ request +")");
+            while (resultSet.next()) {
+                count += resultSet.getInt("count");
+            }
+            st.close();
+            return count;
+        } catch (SQLException e) {
+            errorHandling(e);
+            return count;
         }
     }
 
@@ -77,7 +96,6 @@ public class DbHandler {
             while (resultSet.next()) {
                 System.out.println(resultSet.getString("word") + " : " + resultSet.getInt("count"));
             }
-            close(st);
         } catch (SQLException e) {
             errorHandling(e);
         }
@@ -94,34 +112,26 @@ public class DbHandler {
         }
     }
 
-    public void clearTempTable(Statement st, String tempTableName) {
-        try {
+    public void clearTempTable(String tempTableName) {
+        try (Statement st = connection.createStatement()){
             st.execute("DROP TABLE IF EXISTS '" + tempTableName + "'");
-            close(st);
         } catch (SQLException e) {
             errorHandling(e);
         }
     }
 
-    public boolean notEmpty(Statement st, String tempTableName) {
+    public boolean notEmpty(String tempTableName) {
         int count = 0;
-        try {
+        try (Statement st = connection.createStatement()){
             ResultSet resultSet = st.executeQuery("SELECT count(word) as count FROM '" + tempTableName + "'");
             while (resultSet.next()) {
                 count = resultSet.getInt("count");
             }
+            st.close();
             return count != 0;
         } catch (SQLException e) {
             errorHandling(e);
             return false;
-        }
-    }
-
-    private void close(Statement st) {
-        try {
-            st.close();
-        } catch (SQLException e) {
-            errorHandling(e);
         }
     }
 

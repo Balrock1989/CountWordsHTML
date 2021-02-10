@@ -58,4 +58,14 @@ public class WireMockService {
                         .withStatus(202)
                         .withBody("{\"data\": {\"bearer_token\":\"q1w2e3r4t5\",}}")));
     }
+
+    public int prepareGetWithText(){
+        String[] words = {"one", "two", "ТРИ", "чеТЫре", "пять", "шесть", "семь", "восемь", "восемь", "девять", "10", "one"};
+        String body = String.format("%s \"%s\",>%s<;[%s]\t:{%s}\r(%s)\\?%s&%s\n.%s,«%s»-%s№#*<excludeTag>@%s&", (Object[])words);
+        wm.stubFor(WireMock.get(urlEqualTo("/text"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(body)));
+        return words.length;
+    }
 }

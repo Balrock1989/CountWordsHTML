@@ -21,7 +21,7 @@ public class TextHandler extends Thread implements RandomGenerator {
         RequestHelper.initClient();
         this.URL = url;
         this.tempTableName = randomString.nextString().toLowerCase();
-        this.st = db.createNewStatement(tempTableName);
+        this.st = db.createNewStatementWithTable(tempTableName);
     }
 
     public void run() {
@@ -31,13 +31,13 @@ public class TextHandler extends Thread implements RandomGenerator {
             e.printStackTrace();
             Log.severe(this, e.toString());
         }
-        if (db.notEmpty(st, tempTableName)) {
-            Map<String, Integer> result = db.getAllWords(st, tempTableName);
+        if (db.notEmpty(tempTableName)) {
+            Map<String, Integer> result = db.getAllWords(tempTableName);
             printResult(result);
         } else {
             Log.info(this, String.format("На сайте %s не найден текст", URL));
         }
-        db.clearTempTable(st, tempTableName);
+        db.clearTempTable(tempTableName);
     }
 
     private void printResult(Map<String, Integer> result) {
@@ -47,7 +47,7 @@ public class TextHandler extends Thread implements RandomGenerator {
     }
 
     private void splitTextIntoWords(String allText) {
-        String regSplit = "[ \t\n\r,/.!?\\\"\\“\\':;\\(\\)\\[\\]@#\\$%\\^&\\*\\-\\+\\=\\|\\{\\}\\«\\»\\<\\>©×–]";
+        String regSplit = "[ \t\n\r,/.!?\\\"\\“\\':;\\(\\)\\[\\]@#№\\$%\\^&\\*\\-\\+\\=\\|\\{\\}\\«\\»\\>\\<©×–\\\\]";
         Arrays.stream(allText.split(regSplit))
                 .filter(s -> !s.equals(""))
                 .map(String::toLowerCase)

@@ -3,7 +3,9 @@ package com.api.tests;
 import api.HttpClient;
 import api.RequestHelper;
 import com.api.helpers.WireMockService;
-import okhttp3.*;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.json.JSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -22,7 +24,6 @@ public class HttpClientTest extends RequestHelper {
 
     @BeforeClass
     public void setUp() throws IOException {
-        HttpClient.initClient();
         wm = WireMockService.getInstance();
         wm.start();
     }
