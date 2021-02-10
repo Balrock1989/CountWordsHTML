@@ -41,17 +41,15 @@ public class TextHandlerTest extends RequestHelper {
     //TODO добавить кейсы как поведет себя программа с битым УРЛ, с ответом без слов, с ответом с JSON
     //TODO добавить датапровайдер куда нибудь может
 
-    @Test(description = "Проверка что в БД увеличивается счетчик для уникальных слов")
-    public void getTest() throws IOException {
-//        wm.prepare();
-        RequestHelper.get(wm.getBaseUrl() + "/getTest");
-    }
 
-//    @Test(description = "URL не указан")
-//    public void test2() throws IOException {
-//        TextHandler textHandler = new TextHandler("");
-//        textHandler.start();
-//    }
+
+    @Test(description = "URL не указан")
+    public void test2() throws IOException, InterruptedException {
+        TextHandler textHandler = new TextHandler("");
+        textHandler.start();
+        textHandler.join();
+        //TODO Добавить чтение последней строки лога
+    }
 //
 //    @Test(description = "URL возвращает пустую строку")
 //    public void test3() throws IOException {

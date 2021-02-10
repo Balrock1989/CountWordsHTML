@@ -76,9 +76,9 @@ public class DbHandler {
         String request = Arrays.stream(words).map(s -> "'" + s + "'").collect(joining(","));
         int count = 0;
         try (Statement st = connection.createStatement()){
-            ResultSet resultSet = st.executeQuery("SELECT word, count FROM 'all_statistics' WHERE word IN ("+ request +")");
+            ResultSet resultSet = st.executeQuery("SELECT sum(count) as all_count FROM 'all_statistics' WHERE word IN ("+ request +")");
             while (resultSet.next()) {
-                count += resultSet.getInt("count");
+                count = resultSet.getInt("all_count");
             }
             st.close();
             return count;

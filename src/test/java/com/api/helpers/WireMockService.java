@@ -50,6 +50,15 @@ public class WireMockService {
                         .withBody("Some content")));
     }
 
+    public void prepareOkGetWithoutBody(){
+        wm.stubFor(WireMock.get(urlMatching("/read/[1-9]{6}"))
+                .withHeader("Accept-Encoding", WireMock.equalTo("identity"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/xml")
+                        .withBody("")));
+    }
+
     public void prepareLoginPostWithToken(){
         wm.stubFor(WireMock.post(urlEqualTo("/login/"))
                 .withRequestBody(matching(".*login.*password.*"))
