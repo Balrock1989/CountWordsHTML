@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import static com.api.helpers.ParseHelper.readLastLine;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 
@@ -45,16 +46,22 @@ public class TextHandlerTest extends BaseTest {
     @Test(description = "URL не указан")
     public void test2() throws IOException, InterruptedException {
         TextHandler textHandler = new TextHandler("");
-        try {
-            textHandler.start();
-            textHandler.join();
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getLocalizedMessage(), equalTo("Expected URL scheme 'http' or 'https' but no colon was found"));
-        }
+        textHandler.start();
+        textHandler.join();
         File log = new File(Log.logHome);
         String lastLine = readLastLine(log, "SEVERE");
-        System.out.println(lastLine);
-        //TODO Добавить чтение последней строки лога
+        assertThat(lastLine, containsString("IllegalArgumentException: Expected URL scheme 'http' or 'https' but no colon was found"));
+    }
+
+
+    @Test(description = "URL не указан")
+    public void test3() throws IOException, InterruptedException {
+        TextHandler textHandler = new TextHandler("https://www.simbirsoft.commmm");
+        textHandler.start();
+        textHandler.join();
+        File log = new File(Log.logHome);
+        String lastLine = readLastLine(log, "SEVERE");
+        assertThat(lastLine, containsString("UnknownHostException: www.simbirsoft.commmm"));
     }
 //
 //    @Test(description = "URL возвращает пустую строку")

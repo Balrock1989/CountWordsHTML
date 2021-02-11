@@ -6,6 +6,7 @@ import okio.Buffer;
 import util.Log;
 
 import java.io.IOException;
+import java.rmi.UnexpectedException;
 
 /*** Класс для работы с запросами*/
 public class RequestHelper extends HttpClient {
@@ -26,7 +27,7 @@ public class RequestHelper extends HttpClient {
             if (response.isSuccessful()){
                 buffer.writeUtf8(response.body().string());
             }
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException | UnexpectedException e){
             e.printStackTrace();
             Log.severe(RequestHelper.class, e);
         }

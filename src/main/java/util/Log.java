@@ -15,7 +15,7 @@ public class Log {
         try {
             LogManager.getLogManager().readConfiguration(Logger.class.getResourceAsStream("/logging.properties"));
         } catch (IOException e) {
-            System.err.println("Could not setup logger configuration: " + e.toString());
+            System.err.println("SEVERE Could not setup logger configuration: " + e.toString());
         }
         log = Logger.getLogger(Log.class.getName());
 

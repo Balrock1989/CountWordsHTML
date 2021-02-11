@@ -13,6 +13,10 @@ public class Run {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Log.configLogger();
+        startCountWords();
+    }
+
+    public static void startCountWords() throws IOException, InterruptedException {
         List<TextHandler> thread = new ArrayList<>();
 //        thread.add(new TextHandler("https://www.simbirsoft.com/"));
 //        thread.add(new TextHandler("https://codengineering.ru/"));
