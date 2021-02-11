@@ -36,7 +36,7 @@ public class DbHandler {
     private void configDataBase() throws SQLException {
         Statement st = connection.createStatement();
         st.execute("PRAGMA busy_timeout = 5000;");
-//        st.execute("PRAGMA journal_mode = \"WAL\";");
+        st.execute("PRAGMA journal_mode = \"WAL\";");
         st.executeUpdate("CREATE TABLE if not exists 'all_statistics' ('word' text primary key, count int default 1)");
         connection.setAutoCommit(false);
         connection.commit();
@@ -59,7 +59,7 @@ public class DbHandler {
 
     public Map<String, Integer> getAllWords(String tempTableName) {
         LinkedHashMap<String, Integer> wordToCount = new LinkedHashMap<String, Integer>();
-        try (Statement st = connection.createStatement()){
+        try (Statement st = connection.createStatement()) {
             ResultSet resultSet = st.executeQuery("SELECT word, count FROM '" + tempTableName + "' ORDER BY count DESC, word ASC");
             while (resultSet.next()) {
                 wordToCount.put(resultSet.getString("word"), resultSet.getInt("count"));
@@ -75,8 +75,8 @@ public class DbHandler {
     public int getCountForWords(String... words) {
         String request = Arrays.stream(words).map(s -> "'" + s + "'").collect(joining(","));
         int count = 0;
-        try (Statement st = connection.createStatement()){
-            ResultSet resultSet = st.executeQuery("SELECT sum(count) as all_count FROM 'all_statistics' WHERE word IN ("+ request +")");
+        try (Statement st = connection.createStatement()) {
+            ResultSet resultSet = st.executeQuery("SELECT sum(count) as all_count FROM 'all_statistics' WHERE word IN (" + request + ")");
             while (resultSet.next()) {
                 count = resultSet.getInt("all_count");
             }
@@ -113,7 +113,7 @@ public class DbHandler {
     }
 
     public void clearTempTable(String tempTableName) {
-        try (Statement st = connection.createStatement()){
+        try (Statement st = connection.createStatement()) {
             st.execute("DROP TABLE IF EXISTS '" + tempTableName + "'");
         } catch (SQLException e) {
             errorHandling(e);
@@ -122,7 +122,7 @@ public class DbHandler {
 
     public boolean notEmpty(String tempTableName) {
         int count = 0;
-        try (Statement st = connection.createStatement()){
+        try (Statement st = connection.createStatement()) {
             ResultSet resultSet = st.executeQuery("SELECT count(word) as count FROM '" + tempTableName + "'");
             while (resultSet.next()) {
                 count = resultSet.getInt("count");

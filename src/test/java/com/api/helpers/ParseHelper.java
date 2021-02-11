@@ -2,6 +2,7 @@ package com.api.helpers;
 
 import com.jayway.jsonpath.JsonPath;
 import org.json.JSONObject;
+import util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,8 @@ public class ParseHelper {
         return JsonPath.parse(jsonObject.toString()).read("$." + path);
     }
 
-    public static String readLastLine(File file, String prefixMessage) throws IOException {
+    public static String readLastLine(String prefixMessage) throws IOException {
+        File file = new File(Log.logHome);
         String result = null;
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             long startIdx = file.length();
@@ -27,7 +29,7 @@ public class ParseHelper {
                 if (startIdx > 0)
                     raf.readLine(); // считываем 2 строки с конца файла. Если вторая не null, значит она последняя
                 result = raf.readLine();
-                if (result != null && !result.startsWith(prefixMessage)){
+                if (result != null && !result.startsWith(prefixMessage)) {
                     result = null;
                 }
                 startIdx--;

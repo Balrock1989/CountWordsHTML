@@ -10,6 +10,7 @@ import okhttp3.Response;
 import org.json.JSONObject;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -60,10 +61,9 @@ public class HttpClientTest extends BaseTest {
         assertThat(parseJsonAsString(responseBody, "data.bearer_token"), equalTo("q1w2e3r4t5"));
     }
 
-    @Test(description = "хедеры?")
-    public void test3() throws IOException {
-//        TextHandler textHandler = new TextHandler("https://www.simbirsoft.com/");
-//        textHandler.start();
+    @BeforeMethod
+    public void resetWm() {
+        wm.resetAll();
     }
 
     @AfterClass

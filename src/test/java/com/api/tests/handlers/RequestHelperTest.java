@@ -5,6 +5,7 @@ import com.api.BaseTest;
 import com.api.helpers.WireMockService;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -33,13 +34,7 @@ public class RequestHelperTest extends BaseTest {
     @Test
     public void getWithoutTextTest() throws IOException {
         wm.prepareOkGetWithoutBody();
-        String responseBody = RequestHelper.get(wm.getBaseUrl() + "/read/456382");
-        assertThat(responseBody, equalTo(""));
-    }
-
-    @Test
-    public void getToIncorrectURLTest() throws IOException {
-        String responseBody = RequestHelper.get(wm.getBaseUrl() + "/incorrect.commm");
+        String responseBody = RequestHelper.get(wm.getBaseUrl() + "/withoutBody/456382");
         assertThat(responseBody, equalTo(""));
     }
 
@@ -50,6 +45,11 @@ public class RequestHelperTest extends BaseTest {
         } catch (IllegalArgumentException e) {
             assertThat(e.getLocalizedMessage(), equalTo("Expected URL scheme 'http' or 'https' but no colon was found"));
         }
+    }
+
+    @BeforeMethod
+    public void resetWm() {
+        wm.resetAll();
     }
 
     @AfterClass

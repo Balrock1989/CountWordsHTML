@@ -1,5 +1,6 @@
 package util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.logging.LogManager;
@@ -10,8 +11,12 @@ public class Log {
     private static Logger log;
     public static String logHome;
 
-    public static void configLogger() {
+    public static void configLogger() throws IOException {
         logHome = Paths.get(System.getProperty("user.dir"), "log.txt").toString();
+        File file = new File(logHome);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
         try {
             LogManager.getLogManager().readConfiguration(Logger.class.getResourceAsStream("/logging.properties"));
         } catch (IOException e) {
@@ -22,8 +27,14 @@ public class Log {
     }
 
     public static void severe(Class clazz, Exception error) {
-        int size = error.getStackTrace().length;
-        log.severe(clazz.getName() + ": " + error + ", line: " + error.getStackTrace()[size -1].getLineNumber());
+        int lineNumber = 0;
+        for (int i = error.getStackTrace().length -1; i >= 0; i--) {
+            if (error.getStackTrace()[i].getClassName().equals(clazz.getName())){
+                lineNumber = error.getStackTrace()[i].getLineNumber();
+                break;
+            }
+        }
+        log.severe(clazz.getName() + ": " + error + ", line: " + lineNumber);
     }
 
     public static void info(Class clazz, String info) {
