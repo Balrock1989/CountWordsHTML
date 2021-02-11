@@ -1,6 +1,6 @@
-package com.api.tests;
+package com.api.tests.handlers;
 
-import api.RequestHelper;
+import com.api.BaseTest;
 import com.api.helpers.WireMockService;
 import handlers.DbHandler;
 import handlers.TextHandler;
@@ -8,21 +8,21 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import util.Log;
 
+import java.io.File;
 import java.io.IOException;
 
+import static com.api.helpers.ParseHelper.readLastLine;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 
-public class TextHandlerTest extends RequestHelper {
+public class TextHandlerTest extends BaseTest {
     private final DbHandler db = DbHandler.getInstance();
     private WireMockService wm;
 
 
     @BeforeClass
-    public void setUp() throws IOException {
-        Log.configLogger();
-        RequestHelper.initClient();
+    public void setUp() {
         wm = WireMockService.getInstance();
         wm.start();
     }
@@ -42,12 +42,18 @@ public class TextHandlerTest extends RequestHelper {
     //TODO добавить датапровайдер куда нибудь может
 
 
-
     @Test(description = "URL не указан")
     public void test2() throws IOException, InterruptedException {
         TextHandler textHandler = new TextHandler("");
-        textHandler.start();
-        textHandler.join();
+        try {
+            textHandler.start();
+            textHandler.join();
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getLocalizedMessage(), equalTo("Expected URL scheme 'http' or 'https' but no colon was found"));
+        }
+        File log = new File(Log.logHome);
+        String lastLine = readLastLine(log, "SEVERE");
+        System.out.println(lastLine);
         //TODO Добавить чтение последней строки лога
     }
 //
@@ -56,4 +62,6 @@ public class TextHandlerTest extends RequestHelper {
 //        TextHandler textHandler = new TextHandler("https://www.simbirsoft.com/");
 //        textHandler.start();
 //    }
+
+
 }

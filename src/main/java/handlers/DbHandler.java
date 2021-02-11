@@ -22,7 +22,7 @@ public class DbHandler {
                 instance = new DbHandler();
         } catch (SQLException e) {
             e.printStackTrace();
-            Log.severe(DbHandler.class, e.toString());
+            Log.severe(DbHandler.class, e);
         }
         return instance;
     }
@@ -137,6 +137,6 @@ public class DbHandler {
 
     private void errorHandling(SQLException e) {
         e.printStackTrace();
-        Log.severe(this, e.toString());
+        Log.severe(DbHandler.class, e);
     }
 }

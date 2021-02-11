@@ -29,19 +29,19 @@ public class TextHandler extends Thread implements RandomGenerator {
             splitTextIntoWords(Jsoup.parse(RequestHelper.get(this.URL)).text());
         } catch (IOException e) {
             e.printStackTrace();
-            Log.severe(this, e.toString());
+            Log.severe(TextHandler.class, e);
         }
         if (db.notEmpty(tempTableName)) {
             Map<String, Integer> result = db.getAllWords(tempTableName);
             printResult(result);
         } else {
-            Log.info(this, String.format("На сайте %s не найден текст", URL));
+            Log.info(TextHandler.class, String.format("На сайте %s не найден текст", URL));
         }
         db.clearTempTable(tempTableName);
     }
 
     private void printResult(Map<String, Integer> result) {
-        Log.info(this, URL + "\nВсего найдено уникальных слов: " + result.size());
+        Log.info(TextHandler.class, URL + "\nВсего найдено уникальных слов: " + result.size());
         result.forEach((k, v) -> System.out.println(k + " : " + v));
         System.out.println(new String(new char[50]).replace("\0", "-"));
     }

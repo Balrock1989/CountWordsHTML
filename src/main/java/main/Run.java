@@ -14,8 +14,8 @@ public class Run {
     public static void main(String[] args) throws IOException, InterruptedException {
         Log.configLogger();
         List<TextHandler> thread = new ArrayList<>();
-        thread.add(new TextHandler("https://www.simbirsoft.com/"));
-        thread.add(new TextHandler("https://codengineering.ru/"));
+//        thread.add(new TextHandler("https://www.simbirsoft.com/"));
+//        thread.add(new TextHandler("https://codengineering.ru/"));
         thread.add(new TextHandler("https://www.simbirsoft.commmm/"));
         for (TextHandler textHandler : thread) {
             textHandler.start();

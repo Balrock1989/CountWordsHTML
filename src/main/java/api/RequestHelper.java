@@ -3,6 +3,7 @@ package api;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.Buffer;
+import util.Log;
 
 import java.io.IOException;
 
@@ -14,15 +15,20 @@ public class RequestHelper extends HttpClient {
     }
 
     public static String get(String url) throws IOException {
-        Request request = new Request.Builder()
-                .url(url)
-                .headers(HttpClient.headers)
-                .get()
-                .build();
-        Response response = HttpClient.client.newCall(request).execute();
         Buffer buffer = new Buffer();
-        if (response.isSuccessful()){
-            buffer.writeUtf8(response.body().string());
+        try {
+            Request request = new Request.Builder()
+                    .url(url)
+                    .headers(HttpClient.headers)
+                    .get()
+                    .build();
+            Response response = HttpClient.client.newCall(request).execute();
+            if (response.isSuccessful()){
+                buffer.writeUtf8(response.body().string());
+            }
+        } catch (IllegalArgumentException e){
+            e.printStackTrace();
+            Log.severe(RequestHelper.class, e);
         }
         return buffer.readUtf8();
     }

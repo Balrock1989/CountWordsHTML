@@ -1,7 +1,8 @@
-package com.api.tests;
+package com.api.tests.http;
 
 import api.HttpClient;
 import api.RequestHelper;
+import com.api.BaseTest;
 import com.api.helpers.WireMockService;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -13,17 +14,19 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+import static api.HttpClient.JSON;
 import static com.api.helpers.ParseHelper.parseJsonAsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 
-public class HttpClientTest extends RequestHelper {
+public class HttpClientTest extends BaseTest {
 
     private WireMockService wm;
 
     @BeforeClass
     public void setUp() throws IOException {
+        RequestHelper.initClient();
         wm = WireMockService.getInstance();
         wm.start();
     }
