@@ -35,13 +35,13 @@ public class TextHandler extends Thread implements RandomGenerator {
             Map<String, Integer> result = db.getAllWords(tempTableName);
             printResult(result);
         } else {
-            Log.info(TextHandler.class, String.format("На сайте %s не найден текст", URL));
+            Log.info(TextHandler.class, String.format("Text not found in the site %s", URL));
         }
         db.clearTempTable(tempTableName);
     }
 
     private void printResult(Map<String, Integer> result) {
-        Log.info(TextHandler.class, URL + "\nВсего найдено уникальных слов: " + result.size());
+        Log.info(TextHandler.class, URL + "\nTotal unique words found: " + result.size());
         result.forEach((k, v) -> System.out.println(k + " : " + v));
         System.out.println(new String(new char[50]).replace("\0", "-"));
     }

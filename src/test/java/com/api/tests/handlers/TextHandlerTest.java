@@ -47,7 +47,7 @@ public class TextHandlerTest extends BaseTest {
         TextHandler textHandler = new TextHandler(url);
         textHandler.start();
         textHandler.join();
-        assertThat(readLastLine("INFO"), containsString("INFO: handlers.TextHandler: На сайте " + url + " не найден текст"));
+        assertThat(readLastLine("INFO"), containsString("INFO: handlers.TextHandler: Text not found in the site " + url));
     }
 
     @Test(description = "Проверка что в БД увеличивается счетчик для уникальных слов если в ответе приходит JSON")
@@ -89,7 +89,7 @@ public class TextHandlerTest extends BaseTest {
         textHandler.start();
         textHandler.join();
         assertThat(readLastLine("SEVERE"), containsString("UnknownHostException: www.simbirsoft.commmm"));
-        assertThat(readLastLine("INFO"), containsString("INFO: handlers.TextHandler: На сайте " + url + " не найден текст"));
+        assertThat(readLastLine("INFO"), containsString("INFO: handlers.TextHandler: Text not found in the site " + url));
     }
 
     @BeforeMethod
