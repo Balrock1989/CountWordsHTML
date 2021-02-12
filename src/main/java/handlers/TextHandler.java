@@ -20,7 +20,7 @@ public class TextHandler extends Thread implements RandomGenerator {
         RequestHelper.initClient();
         this.URL = url;
         this.tempTableName = randomString.nextString().toLowerCase();
-        db.CreateTempTable(tempTableName);
+        db.createTempTable(tempTableName);
     }
 
     public void run() {

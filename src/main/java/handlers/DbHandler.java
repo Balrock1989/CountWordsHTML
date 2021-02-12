@@ -42,7 +42,7 @@ public class DbHandler {
         connection.commit();
     }
 
-    public void CreateTempTable(String tempTableName) {
+    public void createTempTable(String tempTableName) {
         try (Statement st = connection.createStatement()) {
             st.executeUpdate("CREATE TEMP TABLE if not exists '" + tempTableName + "' ('word' text primary key, count int default 1)");
         } catch (SQLException e) {

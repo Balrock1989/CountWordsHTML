@@ -13,14 +13,14 @@ public class Run {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Log.configLogger();
-        startCountWords();
+        startCountWords("https://www.simbirsoft.com/", "https://codengineering.ru/");
     }
 
-    public static void startCountWords() throws IOException, InterruptedException {
+    public static void startCountWords(String... urls) throws IOException, InterruptedException {
         List<TextHandler> thread = new ArrayList<>();
-        thread.add(new TextHandler("https://www.simbirsoft.com/"));
-        thread.add(new TextHandler("https://codengineering.ru/"));
-//        thread.add(new TextHandler("https://www.simbirsoft.commmm/"));
+        for (String url : urls) {
+            thread.add(new TextHandler(url));
+        }
         for (TextHandler textHandler : thread) {
             textHandler.start();
             textHandler.join();
