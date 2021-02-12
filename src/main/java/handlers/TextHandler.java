@@ -6,7 +6,6 @@ import util.Log;
 import util.RandomGenerator;
 
 import java.io.IOException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -15,13 +14,13 @@ public class TextHandler extends Thread implements RandomGenerator {
     private final DbHandler db = DbHandler.getInstance();
     private final String URL;
     private final String tempTableName;
-    private final Statement st;
+
 
     public TextHandler(String url) throws IOException {
         RequestHelper.initClient();
         this.URL = url;
         this.tempTableName = randomString.nextString().toLowerCase();
-        this.st = db.createNewStatementWithTable(tempTableName);
+        db.CreateTempTable(tempTableName);
     }
 
     public void run() {
@@ -51,6 +50,6 @@ public class TextHandler extends Thread implements RandomGenerator {
         Arrays.stream(allText.split(regSplit))
                 .filter(s -> !s.equals(""))
                 .map(String::toLowerCase)
-                .forEach(s -> db.addProduct(st, tempTableName, s));
+                .forEach(s -> db.addProduct(tempTableName, s));
     }
 }

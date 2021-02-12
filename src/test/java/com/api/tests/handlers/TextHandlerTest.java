@@ -74,7 +74,7 @@ public class TextHandlerTest extends BaseTest {
     }
 
     @Test(description = "Проверка ошибки, если URL не указан")
-    public void emptyUrlTest() throws IOException, InterruptedException {
+    public void checkEmptyUrlTest() throws IOException, InterruptedException {
         TextHandler textHandler = new TextHandler("");
         textHandler.start();
         textHandler.join();
@@ -83,7 +83,7 @@ public class TextHandlerTest extends BaseTest {
 
 
     @Test(description = "Проверка ошибки, если URL с некорректный")
-    public void invalidUrlTest() throws IOException, InterruptedException {
+    public void checkInvalidUrlTest() throws IOException, InterruptedException {
         String url = "https://www.simbirsoft.commmm";
         TextHandler textHandler = new TextHandler(url);
         textHandler.start();

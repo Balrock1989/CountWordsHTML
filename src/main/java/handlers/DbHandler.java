@@ -42,19 +42,12 @@ public class DbHandler {
         connection.commit();
     }
 
-    public Statement createNewStatementWithTable(String tempTableName) {
-        Statement st = null;
-        try {
-            st = connection.createStatement();
-            CreateTempTable(st, tempTableName);
+    public void CreateTempTable(String tempTableName) {
+        try (Statement st = connection.createStatement()) {
+            st.executeUpdate("CREATE TEMP TABLE if not exists '" + tempTableName + "' ('word' text primary key, count int default 1)");
         } catch (SQLException e) {
             errorHandling(e);
         }
-        return st;
-    }
-
-    private void CreateTempTable(Statement st, String tempTableName) throws SQLException {
-        st.executeUpdate("CREATE TEMP TABLE if not exists '" + tempTableName + "' ('word' text primary key, count int default 1)");
     }
 
     public Map<String, Integer> getAllWords(String tempTableName) {
@@ -74,25 +67,14 @@ public class DbHandler {
 
     public int getCountForWords(String... words) {
         String request = Arrays.stream(words).map(s -> "'" + s + "'").collect(joining(","));
-        int count = 0;
-        try (Statement st = connection.createStatement()) {
-            ResultSet resultSet = st.executeQuery("SELECT sum(count) as all_count FROM 'all_statistics' WHERE word IN (" + request + ")");
-            while (resultSet.next()) {
-                count = resultSet.getInt("all_count");
-            }
-            st.close();
-            return count;
-        } catch (SQLException e) {
-            errorHandling(e);
-            return count;
-        }
+        return getCount("SELECT sum(count) as count FROM 'all_statistics' WHERE word IN (" + request + ")");
     }
 
     public void printAllStatistics(int limit) {
         try (Statement st = connection.createStatement()) {
             connection.commit();
             ResultSet resultSet = st.executeQuery("SELECT word, count FROM 'all_statistics' ORDER BY count DESC, word ASC LIMIT " + limit);
-            System.out.println(limit + " самых часто встречающихся слов из общей статистики:");
+            System.out.println(limit + " the most common words from the general statistics:");
             while (resultSet.next()) {
                 System.out.println(resultSet.getString("word") + " : " + resultSet.getInt("count"));
             }
@@ -101,8 +83,8 @@ public class DbHandler {
         }
     }
 
-    public void addProduct(Statement st, String tempTableName, String word) {
-        try {
+    public void addProduct(String tempTableName, String word) {
+        try (Statement st = connection.createStatement()) {
             st.executeUpdate("INSERT INTO '" + tempTableName + "' ('word') VALUES('" + word + "') " +
                     "on conflict (word) do update set count = count + 1;");
             st.executeUpdate("INSERT INTO 'all_statistics' ('word') VALUES('" + word + "') " +
@@ -121,17 +103,22 @@ public class DbHandler {
     }
 
     public boolean notEmpty(String tempTableName) {
+        int count = getCount("SELECT count(word) as count FROM '" + tempTableName + "'");
+        return count != 0;
+    }
+
+    private int getCount(String query) {
         int count = 0;
         try (Statement st = connection.createStatement()) {
-            ResultSet resultSet = st.executeQuery("SELECT count(word) as count FROM '" + tempTableName + "'");
+            ResultSet resultSet = st.executeQuery(query);
             while (resultSet.next()) {
                 count = resultSet.getInt("count");
             }
             st.close();
-            return count != 0;
+            return count;
         } catch (SQLException e) {
             errorHandling(e);
-            return false;
+            return count;
         }
     }
 
