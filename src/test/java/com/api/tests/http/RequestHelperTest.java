@@ -1,4 +1,4 @@
-package com.api.tests.handlers;
+package com.api.tests.http;
 
 import api.RequestHelper;
 import com.api.BaseTest;
